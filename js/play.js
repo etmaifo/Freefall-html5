@@ -5,8 +5,8 @@ var playState = {
         
         this.createWorld();
         
-        this.player = game.add.sprite(game.world.centerX, 64, 'player');
-        //this.block = game.add.sprite(game.world.centerX, 64, 'block');
+        this.player = game.add.sprite(game.world.centerX, 64*2, 'player');        
+        
         this.player.scale.setTo(2, 2);
         game.physics.arcade.enable(this.player);
         this.player.collideWorldBounds = true;
@@ -47,6 +47,9 @@ var playState = {
     moveBlocks: function() {
         for (var i = 0; i<this.blocks.children.length; i++) {
             this.blocks.children[i].y -= this.level_speed;
+            if (this.blocks.children[i].bottom < 0) {
+                this.blocks.children[i].kill();
+            }
         }
     },
     
@@ -56,18 +59,7 @@ var playState = {
         
         this.moveBlocks();
     },
-    
-    addBlock: function() {
-        var block = this.blocks.getFirstDead();
-        if (!block){
-            return;
-        }
-        block.scale.setTo(2);
-        block.reset(game.world.centerX, game.world.height - block.height);
-        block.checkWorldBounds = true;
-        block.outOfBoundsKill = true;
-        block.body.velocity.y = -64 * this.level_speed;
-    },
+
     
     createObstacle: function() {
         var randomNumbers = [0, 1, 2, 3, 4, 5];
@@ -83,10 +75,27 @@ var playState = {
     },
     
     killPlayer: function() {
-        console.log("Collision");
+        this.player.kill();
+        
+        this.emitter.x = this.player.x;
+        this.emitter.y = this.player.y;
+        this.emitter.start(true, 5000, null, 10);
+        game.time.events.add(5000, this.gameOver, this);
+    },
+    
+    gameOver: function() {
+      game.state.start('menu');  
     },
     
     createWorld: function() {
-        this.bg = game.add.sprite(0, 0, 'background').scale.setTo(1, 1);        
+        this.bg = game.add.sprite(0, 0, 'background').scale.setTo(1, 1);     
+        
+        this.emitter = game.add.emitter(0, 0, 10);
+        this.emitter.makeParticles('player');
+        this.emitter.setYSpeed(-700, 50);
+        this.emitter.setXSpeed(-100, 100);
+        this.emitter.setRotation(0, 0);
+        this.emitter.setScale(0.25, 0.25, 0.25, 0.25);
+        this.emitter.gravity = 500;
     },
 };

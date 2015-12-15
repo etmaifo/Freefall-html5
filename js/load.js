@@ -9,11 +9,11 @@ var loadState = {
         progressBar.anchor.setTo(0.5, 0.5);
         game.load.setPreloadSprite(progressBar);
         
-        game.load.image('player', 'assets/blue_block.png');
-        game.load.image('block', 'assets/orange_block.png');          
-        game.load.image('background', 'assets/grid.png');
-        game.load.image('title', 'assets/gametitle.png');
-        game.load.image('instructions', 'assets/howtoplay.png');
+        game.load.image('player', 'assets/img/blue_block.png');
+        game.load.image('block', 'assets/img/orange_block.png');          
+        game.load.image('background', 'assets/img/grid.png');
+        game.load.image('title', 'assets/img/gametitle.png');
+        game.load.image('instructions', 'assets/img/howtoplay.png');
     },
     
     create: function() {
