@@ -13,12 +13,15 @@ var playState = {
         
         this.blocks = game.add.group();
         this.blocks.enableBody = true;
-        this.blocks.createMultiple(6, 'block');
-
-        this.left = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
-        this.right = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);  
+        //this.blocks.createMultiple(6, 'block');
         
-        game.time.events.loop(1500, this.addBlock, this);
+        this.level = 2;
+        this.score = 0;
+        this.level_speed = 6;
+        
+        game.input.onDown.add(this.movePlayer, this);
+        
+        game.time.events.loop(1500, this.createObstacle, this);
     },
     
     moveLeft: function() {
@@ -32,19 +35,26 @@ var playState = {
     },
     
     movePlayer: function() {
-        this.left.onDown.add(this.moveLeft, this);
-        this.right.onDown.add(this.moveRight, this);        
+        var x = game.input.mousePointer.x;
+        if (x < game.world.centerX){
+            this.moveLeft();
+        }
+        else {
+            this.moveRight();
+        }        
     },
     
-    moveBlock: function() {
+    moveBlocks: function() {
+        for (var i = 0; i<this.blocks.children.length; i++) {
+            this.blocks.children[i].y -= this.level_speed;
+        }
     },
     
     update: function() {        
         game.physics.arcade.overlap(this.player, this.asteroids, this.playerDie, null, this);  
-        game.physics.arcade.overlap(this.player, this.blocks, this.playerDie, null, this);
+        game.physics.arcade.overlap(this.player, this.blocks, this.killPlayer, null, this);
         
-        this.movePlayer();
-        this.moveBlock();
+        this.moveBlocks();
     },
     
     addBlock: function() {
@@ -56,7 +66,24 @@ var playState = {
         block.reset(game.world.centerX, game.world.height - block.height);
         block.checkWorldBounds = true;
         block.outOfBoundsKill = true;
-        block.body.velocity.y = -32 * 3;
+        block.body.velocity.y = -64 * this.level_speed;
+    },
+    
+    createObstacle: function() {
+        var randomNumbers = [0, 1, 2, 3, 4, 5];
+        var position = Math.floor(Math.random() * 6);
+        
+        for (var i=0; i<this.level; i++) {
+            var mult = Math.floor(Math.random() * 6);
+            var block = game.add.sprite(mult * 64, game.world.height, 'block');
+            block.scale.setTo(2, 2);
+            randomNumbers.pop(mult);
+            this.blocks.add(block);
+        }
+    },
+    
+    killPlayer: function() {
+        console.log("Collision");
     },
     
     createWorld: function() {
