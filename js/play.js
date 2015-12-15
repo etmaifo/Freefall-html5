@@ -79,8 +79,8 @@ var playState = {
         
         this.emitter.x = this.player.x;
         this.emitter.y = this.player.y;
-        this.emitter.start(true, 5000, null, 10);
-        game.time.events.add(5000, this.gameOver, this);
+        this.emitter.start(true, 3500, null, 15);
+        game.time.events.add(3500, this.gameOver, this);
     },
     
     gameOver: function() {
@@ -90,12 +90,12 @@ var playState = {
     createWorld: function() {
         this.bg = game.add.sprite(0, 0, 'background').scale.setTo(1, 1);     
         
-        this.emitter = game.add.emitter(0, 0, 10);
+        this.emitter = game.add.emitter(0, 0, 15);
         this.emitter.makeParticles('player');
-        this.emitter.setYSpeed(-700, 50);
+        this.emitter.setYSpeed(-400, -100);
         this.emitter.setXSpeed(-100, 100);
         this.emitter.setRotation(0, 0);
         this.emitter.setScale(0.25, 0.25, 0.25, 0.25);
-        this.emitter.gravity = 500;
+        this.emitter.gravity = 600;
     },
 };
