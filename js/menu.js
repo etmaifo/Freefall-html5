@@ -32,7 +32,7 @@ var menuState = {
     outro: function() {
         var logoTween = game.add.tween(this.logo).to({y: -50}, 500).start();
         
-        var instructionsTween = game.add.tween(this.instructions).to({x: -300}, 700)
+        var instructionsTween = game.add.tween(this.instructions).to({x: -300}, 700);
         instructionsTween.onComplete.add(this.start, this);
         instructionsTween.start();
     },

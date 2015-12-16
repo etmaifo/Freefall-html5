@@ -14,6 +14,7 @@ var loadState = {
         game.load.image('background', 'assets/img/grid.png');
         game.load.image('title', 'assets/img/gametitle.png');
         game.load.image('instructions', 'assets/img/howtoplay.png');
+        game.load.image('overlay', 'assets/img/overlay.png');
     },
     
     create: function() {

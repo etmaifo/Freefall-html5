@@ -13,7 +13,6 @@ var playState = {
         
         this.blocks = game.add.group();
         this.blocks.enableBody = true;
-        //this.blocks.createMultiple(6, 'block');
         
         this.level = 2;
         this.score = 0;
@@ -42,6 +41,22 @@ var playState = {
         else {
             this.moveRight();
         }        
+        this.showOverlay();
+    },
+    
+    showOverlay: function() {
+        var xpos = 0;
+        var x = game.input.mousePointer.x;
+        if (x > game.world.centerX) {
+            xpos = game.world.centerX;
+        }
+        
+        var overlay = game.add.sprite(xpos, 0, 'overlay'); 
+        overlay.scale.setTo(2, 2);
+        overlay.alpha = 0.5;
+        var overlayTween = game.add.tween(overlay).to({alpha: 0}, 300);
+        overlayTween.onComplete.add(overlay.kill, this);
+        overlayTween.start();    
     },
     
     moveBlocks: function() {
