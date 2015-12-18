@@ -15,6 +15,9 @@ var loadState = {
         game.load.image('title', 'assets/img/gametitle.png');
         game.load.image('instructions', 'assets/img/howtoplay.png');
         game.load.image('overlay', 'assets/img/overlay.png');
+        game.load.image('gameover', 'assets/img/gameover.png');
+        game.load.image('retry', 'assets/img/retry_button.png');
+        game.load.image('quit', 'assets/img/quit_button.png');
         
         game.load.bitmapFont('square', 'assets/fonts/square.png', 'assets/fonts/square.fnt');
     },

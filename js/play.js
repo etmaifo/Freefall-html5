@@ -15,18 +15,70 @@ var playState = {
         this.blocks = game.add.group();
         this.blocks.enableBody = true;
         
-        this.scoreLabel = game.add.text(game.world.centerX, 64, '0', {font: '70px square', fill: '#808081', bold: 'true'});
+        this.scoreLabel = game.add.text(game.world.centerX, 32, '0', {font: '50px Russo One', fill: '#808081', bold: 'true'});
         this.scoreLabel.anchor.setTo(0.5, 0.5);
+
+        this.gameoverScreen = game.add.sprite(0, 0, 'gameover');
+        this.gameoverScreen.y = -this.gameoverScreen.height
         
         this.level = 2;
         this.score = 0;
         this.level_speed = 8;
+        this.block_speed = -10;
+        this.grade = 'F';
         
         game.input.onDown.add(this.movePlayer, this);
         
-        game.time.events.loop(1500, this.createObstacle, this);
+        this.createBlocks();
+        this.spawn_blocks = false
+        this.isGameOver = false;
+        this.disable_overlay = false;
+
     },
+
+    update: function() {        
+        game.physics.arcade.overlap(this.player, this.asteroids, this.playerDie, null, this);  
+        game.physics.arcade.overlap(this.player, this.blocks, this.killPlayer, null, this);
+        
+        if (!this.isGameOver)
+            this.updateBlocks();
+
+        if (this.spawn_blocks){
+            this.createBlocks();
+            this.spawn_blocks = false;
+        }
+        this.scoreLabel.setText(this.score);
+        this.updateGrade();
+        this.updateLevel();
+        this.updatePoints();               
+    },    
     
+    createWorld: function() {
+        this.bg = game.add.sprite(0, 0, 'background').scale.setTo(1, 1);     
+        
+        this.emitter = game.add.emitter(0, 0, 15);
+        this.emitter.makeParticles('player');        
+        this.emitter.setYSpeed(-500, -300);
+        this.emitter.setXSpeed(-150, 150);
+        this.emitter.setRotation(0, 0);
+        this.emitter.gravity = 800;
+    },
+
+    createBlocks: function() {
+        var randomNumbers = [0, 1, 2, 3, 4, 5];
+        var position = Math.floor(Math.random() * 6);
+        
+        for (var i=0; i<this.level; i++) {
+            var mult = randomNumbers[Math.floor(Math.random() * randomNumbers.length)];
+            var block = game.add.sprite(mult * 64, game.world.height, 'block');
+            block.scale.setTo(2, 2);
+            block.givePoint = true;
+            randomNumbers.pop(mult);
+            this.blocks.add(block);
+        }
+    },
+
+
     moveLeft: function() {
         if (this.player.x > 0)
             this.player.x -= 64;
@@ -45,8 +97,34 @@ var playState = {
         else {
             this.moveRight();
         }        
-        this.showOverlay();
+        if (!this.disable_overlay)
+            this.showOverlay();
     },
+
+    updateBlocks: function() {
+        var block;
+
+        for (var i = 0; i<this.blocks.children.length; i++) {
+            block = this.blocks.children[i];
+            block.y -= this.level_speed;
+
+            if (block.bottom < this.player.top && block.givePoint) {
+                this.player.receivePoint = true;
+                block.givePoint = false;
+            }
+
+            if (block.bottom < 0) {
+                block.kill()
+                block.destroy(true);  
+                this.blocks.remove(block);            
+                this.spawn_blocks = true;
+            }
+
+            if (this.spawn_blocks) {
+                this.blocks.removeAll();
+            }
+        }  
+    },    
     
     showOverlay: function() {
         var xpos = 0;
@@ -66,24 +144,10 @@ var playState = {
     givePoint: function() {
         for (var i = 0; i<this.blocks.children.length; i++) {
             if (this.blocks.children[0].givePoint){
-                self.score += 1;
+                this.score += 1;
                 this.blocks.children[0].givePoint = false;
-                break;
-            }
-        }
-    },
-    
-    moveBlocks: function() {
-        var block;
-        for (var i = 0; i<this.blocks.children.length; i++) {
-            block = this.blocks.children[i];
-            block.y -= this.level_speed;
-            if (block.bottom < this.player.top && block.givePoint) {
-                this.player.receivePoint = true;
-                block.givePoint = false;
-            }
-            if (this.blocks.children[i].bottom < 0) {
-                this.blocks.children[i].kill();
+                //break; // One block will suffice so break loop
+                i = this.blocks.children.length;
             }
         }
     },
@@ -126,32 +190,7 @@ var playState = {
         else if (this.score < 1001){
             this.level_speed = 22;
         }
-    },
-    
-    update: function() {        
-        game.physics.arcade.overlap(this.player, this.asteroids, this.playerDie, null, this);  
-        game.physics.arcade.overlap(this.player, this.blocks, this.killPlayer, null, this);
-        
-        this.moveBlocks();
-        this.scoreLabel.setText(this.score);
-        this.updateLevel();
-        this.updatePoints();
-    },
-
-    
-    createObstacle: function() {
-        var randomNumbers = [0, 1, 2, 3, 4, 5];
-        var position = Math.floor(Math.random() * 6);
-        
-        for (var i=0; i<this.level; i++) {
-            var mult = Math.floor(Math.random() * 6);
-            var block = game.add.sprite(mult * 64, game.world.height, 'block');
-            block.scale.setTo(2, 2);
-            block.givePoint = true;
-            randomNumbers.pop(mult);
-            this.blocks.add(block);
-        }
-    },
+    },    
     
     killPlayer: function() {
         this.player.kill();
@@ -161,20 +200,73 @@ var playState = {
         this.emitter.start(true, 3500, null, 15);
         game.time.events.add(3500, this.gameOver, this);
     },
+
+    updateGrade: function() {
+        var avg = this.score;
+
+        if (avg <= 10)
+            this.grade = 'F'
+        else if (avg <= 25)
+            this.grade = 'D'
+        else if (avg <= 50)
+            this.grade = 'C'
+        else if (avg <= 75)
+            this.grade = 'C+'
+        else if (avg <= 100)
+            this.grade = 'B-'
+        else if (avg <= 120)
+            this.grade = 'B'
+        else if (avg <= 130)
+            this.grade = 'B+'
+        else if (avg <= 140)
+            this.grade = 'A-'
+        else if (avg > 140)
+            this.grade = 'A'
+
+    },
     
     gameOver: function() {
-      game.state.start('menu');  
+        this.blocks.removeAll();
+        this.disable_overlay = true;
+
+        var retry = game.add.button(32, 0, 'retry', this.restartGame);
+        retry.scale.setTo(2, 2);
+        retry.anchor.setTo(0.5, 0.5);
+        retry.x = game.world.centerX;
+        var retryTween = game.add.tween(retry).to({y: 500}, 500).start()
+
+        var scoreText = game.add.text(32, 180 - game.world.height, 'Score', {font: '24px Russo One', fill: '#000000', bold: 'true'});
+        var bestText = game.add.text(32, 220 - game.world.height, 'Best', {font: '24px Russo One', fill: '#000000', bold: 'true'});
+        var retriesText = game.add.text(32, 260 - game.world.height, 'Retries', {font: '24px Russo One', fill: '#000000', bold: 'true'});
+
+        game.add.tween(scoreText).to({y: 180}, 500).start();
+        game.add.tween(bestText).to({y: 220}, 500).start();
+        game.add.tween(retriesText).to({y: 260}, 500).start();
+
+        var scoreValue = game.add.text(game.world.width - 40, 180 - game.world.height, this.score, {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
+        var bestValue = game.add.text(game.world.width - 40, 220 - game.world.height, '0', {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
+        var retriesValue = game.add.text(game.world.width - 40, 260 - game.world.height, '0', {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
+        scoreValue.right = game.world.width - 32;
+        bestValue.right = game.world.width - 32;
+        retriesValue.right = game.world.width - 32;
+
+        game.add.tween(scoreValue).to({y: 180}, 500).start();
+        game.add.tween(bestValue).to({y: 220}, 500).start();
+        game.add.tween(retriesValue).to({y: 260}, 500).start();
+
+        var grade = game.add.text(0, 0, this.grade, {font: '84px Russo One', fill: '#CC3300', bold: 'true'});
+        grade.anchor.setTo(0.5, 0.5);
+        grade.scale.setTo(0, 0);
+        grade.x = game.world.centerX;
+        grade.y = -220;
+        gradeAnimator = game.add.tween(grade.scale).to({x: 1, y: 1}, 1200).easing(Phaser.Easing.Bounce.Out).start();
+        gradeTween = game.add.tween(grade).to({y: game.world.height - 220}, 500).start();
+
+        game.add.tween(this.gameoverScreen).to({y: 0}, 700).start();
     },
-    
-    createWorld: function() {
-        this.bg = game.add.sprite(0, 0, 'background').scale.setTo(1, 1);     
-        
-        this.emitter = game.add.emitter(0, 0, 15);
-        this.emitter.makeParticles('player');        
-        this.emitter.setYSpeed(-500, -300);
-        this.emitter.setXSpeed(-150, 150);
-        this.emitter.setRotation(0, 0);
-        //this.emitter.setScale(0.25, 0.25, 0.25, 0.25);
-        this.emitter.gravity = 800;
-    },
+
+
+    restartGame: function() {
+        game.state.start('menu');
+    }
 };
