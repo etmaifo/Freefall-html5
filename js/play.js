@@ -146,7 +146,6 @@ var playState = {
             if (this.blocks.children[0].givePoint){
                 this.score += 1;
                 this.blocks.children[0].givePoint = false;
-                //break; // One block will suffice so break loop
                 i = this.blocks.children.length;
             }
         }
