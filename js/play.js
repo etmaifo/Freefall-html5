@@ -23,6 +23,8 @@ var playState = {
         
         this.level = 2;
         this.score = 0;
+        this.best = 0;
+        this.retries = 0;
         this.level_speed = 8;
         this.block_speed = -10;
         this.grade = 'F';
