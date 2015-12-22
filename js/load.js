@@ -21,6 +21,12 @@ var loadState = {
         game.load.image('particle', 'assets/img/particle.png');
         
         game.load.bitmapFont('square', 'assets/fonts/square.png', 'assets/fonts/square.fnt');
+
+        game.load.audio('point', ['assets/sound/point.wav']);
+        game.load.audio('score', ['assets/sound/score.ogg']);
+        game.load.audio('dead', ['assets/sound/dead.wav']);
+        game.load.audio('move', ['assets/sound/nav.wav']);
+        game.load.audio('select', ['assets/sound/select.wav']);
     },
     
     create: function() {

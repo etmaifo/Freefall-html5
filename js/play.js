@@ -28,6 +28,12 @@ var playState = {
         this.level_speed = 8;
         this.block_speed = -10;
         this.grade = 'F';
+
+        this.pointSound = game.add.audio('point');
+        this.scoreSound = game.add.audio('score');
+        this.deadSound = game.add.audio('dead');
+        this.moveSound = game.add.audio('move');
+        this.selectSound = game.add.audio('select');
         
         game.input.onDown.add(this.movePlayer, this);
         //var upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
@@ -111,15 +117,18 @@ var playState = {
     moveLeft: function() {
         if (this.player.x > 0)
             this.player.x -= 64;
+        this.moveSound.play();
     },    
     
     moveRight: function(){
         if (this.player.right < game.world.width)
             this.player.x += 64;
+        this.moveSound.play();
     },
     
     movePlayer: function() {
         var x = game.input.mousePointer.x;
+
         if (x < game.world.centerX){
             this.moveLeft();
         }
@@ -128,6 +137,7 @@ var playState = {
         }        
         if (!this.disable_overlay)
             this.showOverlay();
+
     },
 
     updateBlocks: function() {
@@ -176,6 +186,8 @@ var playState = {
                 this.score += 1;
                 this.blocks.children[0].givePoint = false;
                 i = this.blocks.children.length;
+
+                this.scoreSound.play();
             }
         }
     },
@@ -184,6 +196,7 @@ var playState = {
         if (this.player.receivePoint && this.player.alive) {
             this.score += 1;
             this.player.receivePoint = false;
+            this.pointSound.play();
         }
     },
     
@@ -227,6 +240,8 @@ var playState = {
         this.emitter.y = this.player.y;
         this.emitter.start(true, 3500, null, 15);
         game.time.events.add(3500, this.gameOver, this);
+
+        this.deadSound.play();
     },
 
     updateGrade: function() {
@@ -294,6 +309,8 @@ var playState = {
         gradeTween = game.add.tween(grade).to({y: game.world.height - 220}, 500).start();
 
         game.add.tween(this.gameoverScreen).to({y: 0}, 700).start();
+
+        this.scoreSound.play();
     },
 
 
@@ -302,5 +319,7 @@ var playState = {
         retries += 1;
         localStorage.setItem('retries', retries);
         game.state.start('menu');
+
+        this.selectSound.play();
     }
 };

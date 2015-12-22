@@ -29,6 +29,8 @@ var menuState = {
         var startKey2 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         startKey2.onDown.addOnce(this.outro, this);
         game.input.onDown.add(this.outro, this);
+
+        this.selectSound = game.add.audio('select');
     },
     
     outro: function() {
@@ -37,6 +39,7 @@ var menuState = {
         var instructionsTween = game.add.tween(this.instructions).to({x: -300}, 700);
         instructionsTween.onComplete.add(this.start, this);
         instructionsTween.start();
+        this.selectSound.play();
     },
     
     start: function() {
