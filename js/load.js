@@ -18,6 +18,7 @@ var loadState = {
         game.load.image('gameover', 'assets/img/gameover.png');
         game.load.image('retry', 'assets/img/retry_button.png');
         game.load.image('quit', 'assets/img/quit_button.png');
+        game.load.image('particle', 'assets/img/particle.png');
         
         game.load.bitmapFont('square', 'assets/fonts/square.png', 'assets/fonts/square.fnt');
     },

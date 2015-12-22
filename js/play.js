@@ -67,7 +67,10 @@ var playState = {
         this.scoreLabel.setText(this.score);
         this.updateGrade();
         this.updateLevel();
-        this.updatePoints();       
+        this.updatePoints();    
+
+        if (!this.player.alive)
+            this.level_speed = 3; // Slow-mo effect   
 
         if (this.score > localStorage.getItem('hiScore')) {
             localStorage.setItem('hiScore', this.score);
@@ -82,7 +85,7 @@ var playState = {
         this.bg = game.add.sprite(0, 0, 'background').scale.setTo(1, 1);     
         
         this.emitter = game.add.emitter(0, 0, 15);
-        this.emitter.makeParticles('player');        
+        this.emitter.makeParticles('particle');        
         this.emitter.setYSpeed(-500, -300);
         this.emitter.setXSpeed(-150, 150);
         this.emitter.setRotation(0, 0);
@@ -91,14 +94,15 @@ var playState = {
 
     createBlocks: function() {
         var randomNumbers = [0, 1, 2, 3, 4, 5];
-        var position = Math.floor(Math.random() * 6);
-        
+                
         for (var i=0; i<this.level; i++) {
-            var mult = randomNumbers[Math.floor(Math.random() * randomNumbers.length)];
+            var position = Math.floor(Math.random() * randomNumbers.length);
+            var mult = randomNumbers[position];
             var block = game.add.sprite(mult * 64, game.world.height, 'block');
+
             block.scale.setTo(2, 2);
             block.givePoint = true;
-            randomNumbers.pop(mult);
+            randomNumbers.splice(position, 1);
             this.blocks.add(block);
         }
     },
