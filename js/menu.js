@@ -24,8 +24,10 @@ var menuState = {
         instructionsTween.to({x: 60}, 500);
         instructionsTween.start();
         
-        //var upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
-        //upKey.onDown.addOnce(this.outro, this);
+        var startKey1 = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        startKey1.onDown.addOnce(this.outro, this);
+        var startKey2 = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        startKey2.onDown.addOnce(this.outro, this);
         game.input.onDown.add(this.outro, this);
     },
     

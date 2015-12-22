@@ -30,11 +30,26 @@ var playState = {
         this.grade = 'F';
         
         game.input.onDown.add(this.movePlayer, this);
+        //var upKey = game.input.keyboard.addKey(Phaser.Keyboard.UP);
+        //upKey.onDown.addOnce(this.outro, this);
+        var leftKey = game.input.keyboard.addKey(Phaser.Keyboard.LEFT);
+        leftKey.onDown.add(this.moveLeft, this);
+
+        var rightKey = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
+        rightKey.onDown.add(this.moveRight, this);
         
         this.createBlocks();
         this.spawn_blocks = false
         this.isGameOver = false;
         this.disable_overlay = false;
+
+        if (!localStorage.getItem('hiScore')) {
+            localStorage.setItem('hiScore', 0);
+        }
+
+        if (!localStorage.getItem('retries')) {
+            localStorage.setItem('retries', 0);
+        }
 
     },
 
@@ -52,7 +67,15 @@ var playState = {
         this.scoreLabel.setText(this.score);
         this.updateGrade();
         this.updateLevel();
-        this.updatePoints();               
+        this.updatePoints();       
+
+        if (this.score > localStorage.getItem('hiScore')) {
+            localStorage.setItem('hiScore', this.score);
+        }
+
+        this.best = localStorage.getItem('hiScore');
+        this.retries = localStorage.getItem('retries');
+
     },    
     
     createWorld: function() {
@@ -230,6 +253,9 @@ var playState = {
         this.blocks.removeAll();
         this.disable_overlay = true;
 
+        var restartKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        restartKey.onDown.add(this.restartGame, this);
+
         var retry = game.add.button(32, 0, 'retry', this.restartGame);
         retry.scale.setTo(2, 2);
         retry.anchor.setTo(0.5, 0.5);
@@ -245,8 +271,8 @@ var playState = {
         game.add.tween(retriesText).to({y: 260}, 500).start();
 
         var scoreValue = game.add.text(game.world.width - 40, 180 - game.world.height, this.score, {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
-        var bestValue = game.add.text(game.world.width - 40, 220 - game.world.height, '0', {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
-        var retriesValue = game.add.text(game.world.width - 40, 260 - game.world.height, '0', {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
+        var bestValue = game.add.text(game.world.width - 40, 220 - game.world.height, this.best, {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
+        var retriesValue = game.add.text(game.world.width - 40, 260 - game.world.height, this.retries, {font: '24px Russo One', fill: '#CC3300', bold: 'true'});
         scoreValue.right = game.world.width - 32;
         bestValue.right = game.world.width - 32;
         retriesValue.right = game.world.width - 32;
@@ -268,6 +294,9 @@ var playState = {
 
 
     restartGame: function() {
+        var retries = parseInt(localStorage.getItem('retries'));
+        retries += 1;
+        localStorage.setItem('retries', retries);
         game.state.start('menu');
     }
 };
